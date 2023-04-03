@@ -64,7 +64,7 @@ public:
   DAQModuleManager(std::string name="");
   
   void initialize(const dataobj_t& data);
-  void initialize(std::string& session, Configuration* data);
+  void initialize(std::string& session, oksdbinterfaces::Configuration* data);
   bool initialized() const { return m_initialized; }
   void cleanup();
 

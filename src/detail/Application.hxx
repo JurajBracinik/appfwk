@@ -41,7 +41,7 @@ Application::Application(std::string appname, std::string partition, std::string
   if (confimpl.find("oks") != std::string::npos) {
     TLOG() << "Application: cmdlibimpl=<" << cmdlibimpl
            << "> confimpl=<" << confimpl << "> using OKS for configuration";
-    m_confdb = new Configuration(confimpl);
+    m_confdb = new oksdbinterfaces::Configuration(confimpl);
     TLOG() << "Application loaded OKS configuration";
     m_conf_fac = nullptr;
   }

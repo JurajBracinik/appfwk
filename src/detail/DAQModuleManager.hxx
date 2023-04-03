@@ -48,7 +48,7 @@ DAQModuleManager::initialize(const dataobj_t& data)
 }
 
 void
-DAQModuleManager::initialize(std::string& sessionName, Configuration* conf)
+DAQModuleManager::initialize(std::string& sessionName, oksdbinterfaces::Configuration* conf)
 {
   TLOG() << "DAQModuleManager::initialize() session name " << sessionName
          << " application name " << m_name;
@@ -77,7 +77,7 @@ DAQModuleManager::initialize(std::string& sessionName, Configuration* conf)
       if (queue) {
         TLOG() << "Adding queue " << queue->UID();
         queues.emplace_back(iomanager::QueueConfig{
-            {queue->UID(),input->get_data_type()},
+            {input->UID(),input->get_data_type()},
             iomanager::parse_QueueType(queue->get_queue_type()),
             queue->get_capacity()});
       }
@@ -85,7 +85,7 @@ DAQModuleManager::initialize(std::string& sessionName, Configuration* conf)
       if (netCon) {
         TLOG() << "Adding network connection " << netCon->UID();
         networkconnections.emplace_back(iomanager::Connection{
-            {netCon->UID(),input->get_data_type()},
+            {input->UID(),input->get_data_type()},
             netCon->get_uri(),
             iomanager::parse_ConnectionType(netCon->get_connection_type())
           });
