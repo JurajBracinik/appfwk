@@ -92,6 +92,17 @@ ERS_DECLARE_ISSUE_BASE(appfwk,                        ///< Namespace
 )
 
 /**
+ * @brief OKS cast ERS Issue
+ */
+ERS_DECLARE_ISSUE_BASE(appfwk,                        ///< Namespace
+                       OksCastIssue,                  ///< Type of the issue
+                       appfwk::GeneralDAQModuleIssue, ///< Base class of the issue
+                       " Failed to cast to " << cast, ///< Log Message from the issue
+                       ((std::string)name),           ///< Base class attributes
+                       ((std::string)cast)            ///< Attribute of this class
+)
+
+/**
  * @brief The CommandFailed DAQModule ERS Issue
  */
 ERS_DECLARE_ISSUE_BASE(appfwk,                                ///< Namespace
