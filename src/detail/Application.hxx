@@ -14,6 +14,11 @@
 
 #include "logging/Logging.hpp"
 
+#include "coremanager/CoreManager.hpp"
+#include "dunedaqdal/DaqApplication.hpp"
+#include "dunedaqdal/Host.hpp"
+#include "dunedaqdal/NumaNode.hpp"
+
 #include <string>
 #include <unistd.h>
 
@@ -44,6 +49,14 @@ Application::Application(std::string appname, std::string partition, std::string
     m_confdb = new oksdbinterfaces::Configuration(confimpl);
     TLOG() << "Application loaded OKS configuration";
     m_conf_fac = nullptr;
+
+    // Configure the CoreManager now before any threads get started
+    auto app = m_confdb->get<dunedaq::dal::DaqApplication>(appname);
+    auto host = app->get_host();
+    auto node = app->get_numa_node();
+    auto numa = host->get_numa_nodes();
+    coremanager::CoreManager::get()->configure(numa[node]->get_cpu_cores());
+    TLOG() << "Application: " << coremanager::CoreManager::get()->affinityString();
   }
   else {
     TLOG() << "Application: confimpl=<" << confimpl << "> using JSON for configuration";
@@ -55,6 +68,7 @@ Application::Application(std::string appname, std::string partition, std::string
 void
 Application::init()
 {
+  TLOG() << "Application: " << coremanager::CoreManager::get()->affinityString();
   m_cmd_fac->set_commanded(*this, get_name());
   m_info_mgr.set_provider(*this);
   // Add partition id as tag
