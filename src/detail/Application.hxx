@@ -16,8 +16,6 @@
 
 #include "coremanager/CoreManager.hpp"
 #include "dunedaqdal/DaqApplication.hpp"
-#include "dunedaqdal/Host.hpp"
-#include "dunedaqdal/NumaNode.hpp"
 
 #include <string>
 #include <unistd.h>
@@ -52,10 +50,7 @@ Application::Application(std::string appname, std::string partition, std::string
 
     // Configure the CoreManager now before any threads get started
     auto app = m_confdb->get<dunedaq::dal::DaqApplication>(appname);
-    auto host = app->get_host();
-    auto node = app->get_numa_node();
-    auto numa = host->get_numa_nodes();
-    coremanager::CoreManager::get()->configure(numa[node]->get_cpu_cores());
+    coremanager::CoreManager::get()->configure(app);
     TLOG() << "Application: " << coremanager::CoreManager::get()->affinityString();
   }
   else {

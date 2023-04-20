@@ -72,45 +72,28 @@ DAQModuleManager::initialize(std::string& sessionName, oksdbinterfaces::Configur
   iomanager::Connections_t networkconnections;
   for (auto mod: modules) {
     TLOG() << "initialising module " << mod->UID();
-    for (auto input: mod->get_inputs()) {
-      auto queue = conf->cast<dunedaq::dal::Queue>(input);
+    auto connections = mod->get_inputs();
+    auto outputs = mod->get_outputs();
+    connections.insert(connections.end(), outputs.begin(), outputs.end());
+    for (auto con: connections) {
+      auto queue = conf->cast<dunedaq::dal::Queue>(con);
       if (queue) {
         TLOG() << "Adding queue " << queue->UID();
         queues.emplace_back(iomanager::QueueConfig{
-            {input->UID(),input->get_data_type()},
+            {queue->UID(), queue->get_data_type()},
             iomanager::parse_QueueType(queue->get_queue_type()),
             queue->get_capacity()});
       }
-      auto netCon = conf->cast<dunedaq::dal::NetworkConnection>(input);
+      auto netCon = conf->cast<dunedaq::dal::NetworkConnection>(con);
       if (netCon) {
         TLOG() << "Adding network connection " << netCon->UID();
         networkconnections.emplace_back(iomanager::Connection{
-            {input->UID(),input->get_data_type()},
+            {netCon->UID(), netCon->get_data_type()},
             netCon->get_uri(),
             iomanager::parse_ConnectionType(netCon->get_connection_type())
           });
       }
     }
-    for (auto output: mod->get_outputs()) {
-      auto queue = conf->cast<dunedaq::dal::Queue>(output);
-      if (queue) {
-        TLOG() << "Adding queue " << queue->UID();
-        queues.emplace_back(iomanager::QueueConfig{
-            {queue->UID(),output->get_data_type()},
-            iomanager::parse_QueueType(queue->get_queue_type()),
-            queue->get_capacity()});
-      }
-      auto netCon = conf->cast<dunedaq::dal::NetworkConnection>(output);
-      if (netCon) {
-        TLOG() << "Adding network connection " << netCon->UID();
-        networkconnections.emplace_back(iomanager::Connection{
-            {netCon->UID(),output->get_data_type()},
-            netCon->get_uri(),
-            iomanager::parse_ConnectionType(netCon->get_connection_type())
-          });
-      }
-    }
-
   }
   get_iomanager()->configure(queues,
                              networkconnections,
