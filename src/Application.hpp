@@ -56,6 +56,13 @@ ERS_DECLARE_ISSUE(appfwk,         ///< Namespace
                   ((bool)busy)                      ///< Message parameters // NOLINT
 )
 
+ERS_DECLARE_ISSUE(appfwk,                                                     ///< Namespace
+                  ApplicationResourceMismatch,                                  ///< Issue class name
+                  "Application " << name << " host has no resource " << resname << ".", ///< Message
+                  ((std::string)name)                                         ///< Message parameters
+                  ((std::string)resname)
+)
+
 // Re-enable coverage collection LCOV_EXCL_STOP
 namespace appfwk {
 

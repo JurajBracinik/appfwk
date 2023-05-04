@@ -16,6 +16,8 @@
 
 #include "coremanager/CoreManager.hpp"
 #include "dunedaqdal/DaqApplication.hpp"
+#include "dunedaqdal/VirtualHost.hpp"
+#include "dunedaqdal/ProcessingResource.hpp"
 
 #include <string>
 #include <unistd.h>
@@ -48,8 +50,19 @@ Application::Application(std::string appname, std::string partition, std::string
     TLOG() << "Application loaded OKS configuration";
     m_conf_fac = nullptr;
 
-    // Configure the CoreManager now before any threads get started
     auto app = m_confdb->get<dunedaq::dal::DaqApplication>(appname);
+    // Check that resources used by modules exist in the host
+    auto host = app->get_host();
+    std::set<const dunedaq::dal::HostResource*> host_resources;
+    for (auto resource : host->get_hw_resources()) {
+      host_resources.insert(resource);
+    }
+    for (auto resource : app->get_used_resources()) {
+      if (host_resources.find(resource) == host_resources.end()) {
+        throw ApplicationResourceMismatch(ERS_HERE, get_name(), resource->UID());
+      }
+    }
+    // Configure the CoreManager now before any threads get started
     coremanager::CoreManager::get()->configure(app);
     TLOG() << "Application: " << coremanager::CoreManager::get()->affinityString();
   }
