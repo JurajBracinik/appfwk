@@ -57,7 +57,7 @@ Application::Application(std::string appname, std::string partition, std::string
     for (auto resource : host->get_hw_resources()) {
       host_resources.insert(resource);
     }
-    for (auto resource : app->get_used_resources()) {
+    for (auto resource : app->get_used_hostresources()) {
       if (host_resources.find(resource) == host_resources.end()) {
         throw ApplicationResourceMismatch(ERS_HERE, get_name(), resource->UID());
       }

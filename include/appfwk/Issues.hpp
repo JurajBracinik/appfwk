@@ -62,6 +62,11 @@ ERS_DECLARE_ISSUE(appfwk, InvalidConfigurationURI,
 ERS_DECLARE_ISSUE(appfwk, ConfigurationRetreival,
                      "Failed to retrieve configuration: " << uri,
                       ((std::string)uri))
+
+ERS_DECLARE_ISSUE(appfwk, NotADaqModule,
+                  "Application configuration contains a resource that is not a DaqModule: " << id,
+                      ((std::string)id))
+
 // Re-enable coverage collection LCOV_EXCL_STOP
 } // namespace dunedaq
 
