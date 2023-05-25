@@ -17,13 +17,13 @@ find_package(nlohmann_json REQUIRED )
 find_package(Pistache REQUIRED)
 find_package(okssystem REQUIRED)
 find_package(oksdbinterfaces REQUIRED)
-find_package(dunedaqdal REQUIRED)
+find_package(coredal REQUIRED)
 find_package(coremanager REQUIRED)
 
 
 #set(APPFWK_DEPENDENCIES ${CETLIB} ${CETLIB_EXCEPT} ers::ers logging::logging Folly::folly cmdlib::cmdlib rcif::rcif networkmanager::networkmanager opmonlib::opmonlib nlohmann_json::nlohmann_json pthread)
 set(APPFWK_DEPENDENCIES ${CETLIB} ${CETLIB_EXCEPT} ers::ers logging::logging cmdlib::cmdlib rcif::rcif iomanager::iomanager opmonlib::opmonlib nlohmann_json::nlohmann_json pistache_shared
-  dunedaqdal::dunedaqdal oksdbinterfaces::oksdbinterfaces okssystem::okssystem
+  coredal::coredal oksdbinterfaces::oksdbinterfaces okssystem::okssystem
   coremanager::coremanager)
 
 

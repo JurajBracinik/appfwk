@@ -15,9 +15,9 @@
 #include "logging/Logging.hpp"
 
 #include "coremanager/CoreManager.hpp"
-#include "dunedaqdal/DaqApplication.hpp"
-#include "dunedaqdal/VirtualHost.hpp"
-#include "dunedaqdal/ProcessingResource.hpp"
+#include "coredal/DaqApplication.hpp"
+#include "coredal/VirtualHost.hpp"
+#include "coredal/ProcessingResource.hpp"
 
 #include <string>
 #include <unistd.h>
@@ -50,10 +50,10 @@ Application::Application(std::string appname, std::string partition, std::string
     TLOG() << "Application loaded OKS configuration";
     m_conf_fac = nullptr;
 
-    auto app = m_confdb->get<dunedaq::dal::DaqApplication>(appname);
+    auto app = m_confdb->get<dunedaq::coredal::DaqApplication>(appname);
     // Check that resources used by modules exist in the host
     auto host = app->get_host();
-    std::set<const dunedaq::dal::HostResource*> host_resources;
+    std::set<const dunedaq::coredal::HostResource*> host_resources;
     for (auto resource : host->get_hw_resources()) {
       host_resources.insert(resource);
     }

@@ -18,11 +18,11 @@
 #include "logging/Logging.hpp"
 
 #include "oksdbinterfaces/Configuration.hpp"
-#include "dunedaqdal/Session.hpp"
-#include "dunedaqdal/DaqApplication.hpp"
-#include "dunedaqdal/DaqModule.hpp"
-#include "dunedaqdal/NetworkConnection.hpp"
-#include "dunedaqdal/Queue.hpp"
+#include "coredal/Session.hpp"
+#include "coredal/DaqApplication.hpp"
+#include "coredal/DaqModule.hpp"
+#include "coredal/NetworkConnection.hpp"
+#include "coredal/Queue.hpp"
 
 #include <map>
 #include <regex>
@@ -53,35 +53,35 @@ DAQModuleManager::initialize(std::string& sessionName, oksdbinterfaces::Configur
   TLOG() << "DAQModuleManager::initialize() session name " << sessionName
          << " application name " << m_name;
   TLOG() << "DAQModuleManager::initialize() getting session";
-  auto session = conf->get<dunedaq::dal::Session>(sessionName);
+  auto session = conf->get<dunedaq::coredal::Session>(sessionName);
   if (session == nullptr) {
     TLOG() << "DAQModuleManager::initialize() failed to get session";
     exit(0);
   }
   
   TLOG() << "DAQModuleManager::initialize() getting app";
-  auto app = conf->get<dunedaq::dal::DaqApplication>(m_name);
+  auto app = conf->get<dunedaq::coredal::DaqApplication>(m_name);
   if (app == nullptr) {
     TLOG() << "DAQModuleManager::initialize() failed to get app";
     exit(0);
   }
   TLOG() << "DAQModuleManager::initialize() getting modules";
   auto resources = app->get_contains();
-  std::vector<const dunedaq::dal::DaqModule*> modules;
+  std::vector<const dunedaq::coredal::DaqModule*> modules;
 
   iomanager::Queues_t queues;
   iomanager::Connections_t networkconnections;
   for (auto resiter=resources.begin(); resiter!=resources.end(); ++resiter) {
     auto res = *resiter;
     if (!res->disabled(*session)) {
-      auto mod = res->cast<dunedaq::dal::DaqModule>();
+      auto mod = res->cast<dunedaq::coredal::DaqModule>();
       if (mod) {
         TLOG() << "initialising module " << mod->UID();
         auto connections = mod->get_inputs();
         auto outputs = mod->get_outputs();
         connections.insert(connections.end(), outputs.begin(), outputs.end());
         for (auto con: connections) {
-          auto queue = conf->cast<dunedaq::dal::Queue>(con);
+          auto queue = conf->cast<dunedaq::coredal::Queue>(con);
           if (queue) {
             TLOG() << "Adding queue " << queue->UID();
             queues.emplace_back(iomanager::QueueConfig{
@@ -89,7 +89,7 @@ DAQModuleManager::initialize(std::string& sessionName, oksdbinterfaces::Configur
                 iomanager::parse_QueueType(queue->get_queue_type()),
                 queue->get_capacity()});
           }
-          auto netCon = conf->cast<dunedaq::dal::NetworkConnection>(con);
+          auto netCon = conf->cast<dunedaq::coredal::NetworkConnection>(con);
           if (netCon) {
             TLOG() << "Adding network connection " << netCon->UID();
             networkconnections.emplace_back(iomanager::Connection{
@@ -130,7 +130,7 @@ DAQModuleManager::init_modules(const app::ModSpecs& mspecs)
 }
 
 void
-DAQModuleManager::init_modules(std::vector<const dunedaq::dal::DaqModule*>& modules)
+DAQModuleManager::init_modules(std::vector<const dunedaq::coredal::DaqModule*>& modules)
 {
   for (const auto& mspec : modules) {
     TLOG_DEBUG(0) << "construct: " << mspec->get_plugin() << " : " << mspec->UID();

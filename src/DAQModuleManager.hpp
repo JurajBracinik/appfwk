@@ -17,7 +17,7 @@
 #include "cmdlib/cmd/Structs.hpp"
 
 #include "oksdbinterfaces/Configuration.hpp"
-#include "dunedaqdal/DaqModule.hpp"
+#include "coredal/DaqModule.hpp"
 
 #include <map>
 #include <memory>
@@ -78,7 +78,7 @@ private:
   typedef std::map<std::string, std::shared_ptr<DAQModule>> DAQModuleMap_t; ///< DAQModules indexed by name
 
   void init_modules(const app::ModSpecs& mspecs);
-  void init_modules(std::vector<const dunedaq::dal::DaqModule*>& modules);
+  void init_modules(std::vector<const dunedaq::coredal::DaqModule*>& modules);
   void dispatch_one_match_only(cmdlib::cmd::CmdId id, const std::string& state, const dataobj_t& data);
   void dispatch_after_merge(cmdlib::cmd::CmdId id, const std::string& state, const dataobj_t& data);
 
