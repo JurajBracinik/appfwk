@@ -184,7 +184,7 @@ public:
    * Initialisation of the module. Abstract method to be overridden by derived classes.
    */
   virtual void init(const data_t&) = 0;
-  virtual void init(const dunedaq::coredal::DaqModule* conf) {
+  virtual void init(const dunedaq::coredal::DaqModule* /*conf*/) {
     throw (GeneralDAQModuleIssue(ERS_HERE,"OKS flavour of init() method not implemented"));
   }
 
