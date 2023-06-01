@@ -52,9 +52,9 @@ Application::Application(std::string appname, std::string partition, std::string
 
     auto app = m_confdb->get<dunedaq::coredal::DaqApplication>(appname);
     // Check that resources used by modules exist in the host
-    auto host = app->get_host();
-    std::set<const dunedaq::coredal::HostResource*> host_resources;
-    for (auto resource : host->get_hw_resources()) {
+    auto host = app->get_runs_on();
+    std::set<const dunedaq::coredal::HostComponent*> host_resources;
+    for (auto resource : host->get_uses()) {
       host_resources.insert(resource);
     }
     for (auto resource : app->get_used_hostresources()) {
