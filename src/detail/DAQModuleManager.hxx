@@ -76,7 +76,7 @@ DAQModuleManager::initialize(std::string& sessionName, oksdbinterfaces::Configur
     if (!res->disabled(*session)) {
       auto mod = res->cast<dunedaq::coredal::DaqModule>();
       if (mod) {
-        TLOG() << "initialising module " << mod->UID();
+        TLOG() << "initialising " << mod->class_name() << " module " << mod->UID();
         auto connections = mod->get_inputs();
         auto outputs = mod->get_outputs();
         connections.insert(connections.end(), outputs.begin(), outputs.end());
@@ -133,8 +133,8 @@ void
 DAQModuleManager::init_modules(std::vector<const dunedaq::coredal::DaqModule*>& modules)
 {
   for (const auto& mspec : modules) {
-    TLOG_DEBUG(0) << "construct: " << mspec->get_plugin() << " : " << mspec->UID();
-    auto mptr = make_module(mspec->get_plugin(), mspec->UID());
+    TLOG_DEBUG(0) << "construct: " << mspec->class_name() << " : " << mspec->UID();
+    auto mptr = make_module(mspec->class_name(), mspec->UID());
     m_module_map.emplace(mspec->UID(), mptr);
     mptr->init(mspec);
   }
