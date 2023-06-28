@@ -43,7 +43,7 @@ Application::Application(std::string appname, std::string partition, std::string
   m_fully_qualified_name = partition + "." + appname;
   m_cmd_fac = cmdlib::make_command_facility(cmdlibimpl);
 
-  if (confimpl.find("oks") != std::string::npos) {
+  if (confimpl.find("oksconfig:") != std::string::npos) {
     TLOG() << "Application: cmdlibimpl=<" << cmdlibimpl
            << "> confimpl=<" << confimpl << "> using OKS for configuration";
     m_confdb = new oksdbinterfaces::Configuration(confimpl);
