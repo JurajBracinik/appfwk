@@ -67,6 +67,11 @@ ERS_DECLARE_ISSUE(appfwk, NotADaqModule,
                   "Application configuration contains a resource that is not a DaqModule: " << id,
                       ((std::string)id))
 
+ERS_DECLARE_ISSUE(appfwk, AppNotFound,
+                  "Application " << app
+                  << " not found in OKS configuration databae",
+                      ((std::string)app))
+
 // Re-enable coverage collection LCOV_EXCL_STOP
 } // namespace dunedaq
 

@@ -50,7 +50,11 @@ Application::Application(std::string appname, std::string partition, std::string
     TLOG() << "Application loaded OKS configuration";
     m_conf_fac = nullptr;
 
+    m_oksFile = confimpl.substr(9);
     auto app = m_confdb->get<dunedaq::coredal::DaqApplication>(appname);
+    if (app == nullptr) {
+      throw AppNotFound(ERS_HERE, appname);
+    }
     // Check that resources used by modules exist in the host
     auto host = app->get_runs_on();
     std::set<const dunedaq::coredal::HostComponent*> host_resources;
@@ -90,7 +94,7 @@ Application::init()
   if (m_confdb != nullptr) {
     // pass the whole OKS DB to the module manager
     TLOG() << "Application::init() initialising module manager";
-    m_mod_mgr.initialize(m_partition, m_confdb);
+    m_mod_mgr.initialize(m_partition, m_confdb, m_oksFile);
   }
   set_state("INITIAL");
   m_initialized = true;

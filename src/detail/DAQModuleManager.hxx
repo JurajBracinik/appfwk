@@ -23,6 +23,8 @@
 #include "coredal/DaqModule.hpp"
 #include "coredal/NetworkConnection.hpp"
 #include "coredal/Queue.hpp"
+#include "coredal/ResourceSet.hpp"
+#include "readoutdal/SmartDaqApplication.hpp"
 
 #include <map>
 #include <regex>
@@ -48,7 +50,9 @@ DAQModuleManager::initialize(const dataobj_t& data)
 }
 
 void
-DAQModuleManager::initialize(std::string& sessionName, oksdbinterfaces::Configuration* conf)
+DAQModuleManager::initialize(std::string& sessionName,
+                             oksdbinterfaces::Configuration* conf,
+                             std::string oksFile)
 {
   TLOG() << "DAQModuleManager::initialize() session name " << sessionName
          << " application name " << m_name;
@@ -65,50 +69,64 @@ DAQModuleManager::initialize(std::string& sessionName, oksdbinterfaces::Configur
     TLOG() << "DAQModuleManager::initialize() failed to get app";
     exit(0);
   }
-  TLOG() << "DAQModuleManager::initialize() getting modules";
-  auto resources = app->get_contains();
-  std::vector<const dunedaq::coredal::DaqModule*> modules;
 
   iomanager::Queues_t queues;
   iomanager::Connections_t networkconnections;
-  for (auto resiter=resources.begin(); resiter!=resources.end(); ++resiter) {
-    auto res = *resiter;
-    if (!res->disabled(*session)) {
-      auto mod = res->cast<dunedaq::coredal::DaqModule>();
-      if (mod) {
-        TLOG() << "initialising " << mod->class_name() << " module " << mod->UID();
-        auto connections = mod->get_inputs();
-        auto outputs = mod->get_outputs();
-        connections.insert(connections.end(), outputs.begin(), outputs.end());
-        for (auto con: connections) {
-          auto queue = conf->cast<dunedaq::coredal::Queue>(con);
-          if (queue) {
-            TLOG() << "Adding queue " << queue->UID();
-            queues.emplace_back(iomanager::QueueConfig{
-                {queue->UID(), queue->get_data_type()},
-                iomanager::parse_QueueType(queue->get_queue_type()),
-                queue->get_capacity()});
-          }
-          auto netCon = conf->cast<dunedaq::coredal::NetworkConnection>(con);
-          if (netCon) {
-            TLOG() << "Adding network connection " << netCon->UID();
-            networkconnections.emplace_back(iomanager::Connection{
-                {netCon->UID(), netCon->get_data_type()},
-                netCon->get_uri(),
-                iomanager::parse_ConnectionType(netCon->get_connection_type())
-              });
-          }
+  std::vector<const dunedaq::coredal::DaqModule*> modules;
+  TLOG() << "DAQModuleManager::initialize() getting modules";
+  auto daqApp = app->cast<dunedaq::coredal::DaqApplication>();
+  if (daqApp) {
+    modules = daqApp->get_modules();
+  }
+  auto smartDaqApp = app->cast<dunedaq::readoutdal::SmartDaqApplication>();
+  if (smartDaqApp) {
+    modules = smartDaqApp->generate_modules(conf, oksFile, session);
+  }
+  auto resSet = app->cast<dunedaq::coredal::ResourceSet>();
+  if (resSet) {
+    auto resources = resSet->get_contains();
+    for (auto resiter=resources.begin(); resiter!=resources.end(); ++resiter) {
+      auto res = *resiter;
+      if (!res->disabled(*session)) {
+        auto mod = res->cast<dunedaq::coredal::DaqModule>();
+        if (mod) {
+          modules.push_back(mod);
         }
-        modules.push_back(mod);
+        else {
+          ers::warning(NotADaqModule(ERS_HERE,res->UID()));
+        }
       }
       else {
-        ers::warning(NotADaqModule(ERS_HERE,res->UID()));
+        TLOG() << "Ignoring disabled resource " << res->UID();
       }
     }
-    else {
-      TLOG() << "Ignoring disabled resource " << res->UID();
+  }
+  for (auto mod : modules) {
+    TLOG() << "initialising " << mod->class_name() << " module " << mod->UID();
+    auto connections = mod->get_inputs();
+    auto outputs = mod->get_outputs();
+    connections.insert(connections.end(), outputs.begin(), outputs.end());
+    for (auto con: connections) {
+      auto queue = conf->cast<dunedaq::coredal::Queue>(con);
+      if (queue) {
+        TLOG() << "Adding queue " << queue->UID();
+        queues.emplace_back(iomanager::QueueConfig{
+            {queue->UID(), queue->get_data_type()},
+            iomanager::parse_QueueType(queue->get_queue_type()),
+            queue->get_capacity()});
+      }
+      auto netCon = conf->cast<dunedaq::coredal::NetworkConnection>(con);
+      if (netCon) {
+        TLOG() << "Adding network connection " << netCon->UID();
+        networkconnections.emplace_back(iomanager::Connection{
+            {netCon->UID(), netCon->get_data_type()},
+            netCon->get_uri(),
+            iomanager::parse_ConnectionType(netCon->get_connection_type())
+          });
+      }
     }
   }
+
   get_iomanager()->configure(queues,
                              networkconnections,
                              session->get_use_connectivity_server(),

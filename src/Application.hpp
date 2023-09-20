@@ -120,6 +120,7 @@ private:
   std::shared_ptr<cmdlib::CommandFacility> m_cmd_fac;
   std::shared_ptr<ConfFacility> m_conf_fac;
   oksdbinterfaces::Configuration* m_confdb;
+  std::string m_oksFile;
 };
 
 } // namespace appfwk
