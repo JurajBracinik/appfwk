@@ -24,7 +24,7 @@
 #include "coredal/NetworkConnection.hpp"
 #include "coredal/Queue.hpp"
 #include "coredal/ResourceSet.hpp"
-#include "readoutdal/SmartDaqApplication.hpp"
+#include "appdal/SmartDaqApplication.hpp"
 
 #include <map>
 #include <regex>
@@ -78,7 +78,7 @@ DAQModuleManager::initialize(std::string& sessionName,
   if (daqApp) {
     modules = daqApp->get_modules();
   }
-  auto smartDaqApp = app->cast<dunedaq::readoutdal::SmartDaqApplication>();
+  auto smartDaqApp = app->cast<dunedaq::appdal::SmartDaqApplication>();
   if (smartDaqApp) {
     modules = smartDaqApp->generate_modules(conf, oksFile, session);
   }
